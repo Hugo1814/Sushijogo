@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sushiany - Jogo de Memória</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.container {
+  width: 95%;
+  max-width: 400px;
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 10px;
+  color: #e74c3c;
+}
+
+.info {
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.card {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #e74c3c;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 32px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.card.open {
+  background: #fff;
+}
+
+.card.matched {
+  background: #2ecc71;
+  cursor: default;
+}
+
+button {
+  margin-top: 15px;
+  padding: 10px 20px;
+  font-size: 16px;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>🍣 Sushiany</h1>
+  <div class="info">Toques: <span id="moves">0</span></div>
+
+  <div class="grid" id="grid"></div>
+
+  <button onclick="startGame()">Reiniciar</button>
+</div>
+
+<script>
+const emojis = ["🍣","🍱","🍙","🍤","🥢","🍥","🍜","🍚"];
+let cards = [];
+let firstCard = null;
+let secondCard = null;
+let lock = false;
+let moves = 0;
+
+function startGame() {
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+  cards = [...emojis, ...emojis].sort(() => 0.5 - Math.random());
+  firstCard = null;
+  secondCard = null;
+  lock = false;
+  moves = 0;
+  document.getElementById("moves").textContent = moves;
+
+  cards.forEach(emoji => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.dataset.emoji = emoji;
+    card.textContent = "❓";
+    card.addEventListener("click", () => flipCard(card));
+    grid.appendChild(card);
+  });
+}
+
+function flipCard(card) {
+  if (lock || card.classList.contains("open") || card.classList.contains("matched")) return;
+
+  card.classList.add("open");
+  card.textContent = card.dataset.emoji;
+
+  if (!firstCard) {
+    firstCard = card;
+  } else {
+    secondCard = card;
+    lock = true;
+    moves++;
+    document.getElementById("moves").textContent = moves;
+
+    if (firstCard.dataset.emoji === secondCard.dataset.emoji) {
+      firstCard.classList.add("matched");
+      secondCard.classList.add("matched");
+      resetTurn();
+      checkWin();
+    } else {
+      setTimeout(() => {
+        firstCard.textContent = "❓";
+        secondCard.textContent = "❓";
+        firstCard.classList.remove("open");
+        secondCard.classList.remove("open");
+        resetTurn();
+      }, 800);
+    }
+  }
+}
+
+function resetTurn() {
+  firstCard = null;
+  secondCard = null;
+  lock = false;
+}
+
+function checkWin() {
+  const matched = document.querySelectorAll(".matched").length;
+  if (matched === cards.length) {
+    setTimeout(() => {
+      alert("🎉 Parabéns! Você completou o Sushiany!");
+    }, 300);
+  }
+}
+
+startGame();
+</script>
+
+</body>
+</html># Sushijogo
+Jogo para esperar os pedidos
